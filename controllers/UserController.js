@@ -1,8 +1,8 @@
 const jwt = require("jsonwebtoken") 
-//const crypto = require('crypto') 
 const  bcrypt = require('bcryptjs') 
 const UserModel = require('../models/UserModel');
 const ValidateRegister = require("../validation/Register");
+const ValidateLogin = require("../validation/Login");
 require('dotenv').config()
 
 // Register a user
@@ -33,7 +33,32 @@ const Register = async (req, res) => {
     }
   };
 
+  // Login a User
+  const Login = async (req, res)=> {
+    const {errors, isValid} = ValidateLogin(req.body);
+    try {
+      if(!isValid){
+        res.status(404).json(errors)
+       }else{
+        const { email, password } = req.body //Coming from form input
+        const existingUser =  await UserModel.findOne({ email }) 
+        if(!existingUser) return res.status(404).json({ message: "User doesn't exist" })
+        const isPasswordCorrect  = await bcrypt.compare(password, existingUser.password)
+        if(!isPasswordCorrect) return res.status(400).json({message: "Incorrect email or password"})
+        //If crednetials are valid, create a token for the user
+        const token = jwt.sign({  id: existingUser._id, name: existingUser.name ,email: existingUser.email, role: existingUser.role}, process.env.SECRET,  { expiresIn: '24h' });
+        //Then send the token to the frontend
+        res.status(200).json({ result: existingUser, token })
+       }
+    } catch (error) {
+      res.status(404).json(error.message);
+    }
+  }
+
+
+
+   
 module.exports = {
     Register,
-    // Login,
+     Login,
   };
