@@ -24,7 +24,7 @@ const Register = async (req, res) => {
             req.body.role = "USER";
             const result =  await UserModel.create(req.body);
             const token = jwt.sign({ email: result.email, id: result._id }, process.env.SECRET, { expiresIn: "1h" })
-            res.status(200).json({ result, token })
+            res.status(200).json({success: true, message:"Register successfully...", result, token })
           }
         });
       }
@@ -48,7 +48,7 @@ const Register = async (req, res) => {
         //If crednetials are valid, create a token for the user
         const token = jwt.sign({  id: existingUser._id, name: existingUser.name ,email: existingUser.email, role: existingUser.role}, process.env.SECRET,  { expiresIn: '24h' });
         //Then send the token to the frontend
-        res.status(200).json({ result: existingUser, token })
+        res.status(200).json({ success: true, message:"Logged in successfully...", result: existingUser, token: "Bearer " + token})
        }
     } catch (error) {
       res.status(404).json(error.message);
