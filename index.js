@@ -13,6 +13,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api/v1/users', UserRoutes);
 app.use('/api/v1/projects', ProjectRoutes);
 
+app.get('/', (req, res) =>{
+    res.send("Welcome to poprev backend application")
+})
+
 const PORT  = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
